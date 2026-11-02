@@ -9,6 +9,12 @@ Athena Starter is a Claude Code plugin that routes every request to the right wo
 [![Latest release](https://img.shields.io/github/v/release/zzgiabaozzbui/athena-starter?label=desktop%20app)](https://github.com/zzgiabaozzbui/athena-starter/releases/latest)
 [![check](https://github.com/zzgiabaozzbui/athena-starter/actions/workflows/check.yml/badge.svg)](https://github.com/zzgiabaozzbui/athena-starter/actions/workflows/check.yml)
 
+English · [Vietnamese](README.vi.md)
+
+```
+/plugin install athena-starter --marketplace zzgiabaozzbui/athena-starter
+```
+
 ![Agent Observatory showing the full plan of a 14-task mission](docs/images/observatory-full-plan.png)
 
 *The plan above is the real 14-task plan that built this kit, shown in Agent Observatory: each card is a task with its status, agents and token use; edges are dependencies.*
@@ -101,6 +107,20 @@ The hooks run with `node`: Node 18 or later must be on your PATH. A native Claud
 </details>
 
 ## What a session looks like
+
+```mermaid
+flowchart LR
+  R[Request] --> F{Flow question}
+  F -->|Q&A, research| A[Answer]
+  F -->|small job| S[intent.md]
+  F -->|multi-step or risky| P[intent.md + plan.md + progress.md]
+  P -->|you approve| B[Build task by task]
+  S --> B
+  B --> V[Independent review + re-run checks]
+  V -->|you approve| C[Commit]
+  B -. updates .-> T[(progress.md)]
+  T -. read by .-> O[Observatory]
+```
 
 1. **Route.** You ask for a change. The agent restates it and asks which flow fits (bug fix, feature, review, research...), recommended option first.
 2. **Scope.** It writes `intent.md` with the files it may touch. Anything outside needs your OK by name.

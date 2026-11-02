@@ -1,0 +1,28 @@
+name: Bug or misfire
+description: A rule, skill, flow or hook did the wrong thing
+labels: [bug]
+body:
+  - type: textarea
+    id: request
+    attributes:
+      label: What you asked
+      description: The request you gave the agent, and the flow it picked (`Flow: #N`).
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What the agent did
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Claude Code and plugin version
+      placeholder: Claude Code 2.1.x, athena-starter 0.1.0
