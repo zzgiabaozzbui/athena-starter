@@ -5,6 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-d97757.svg)](#quick-start)
 [![Latest release](https://img.shields.io/github/v/release/zzgiabaozzbui/athena-starter?label=desktop%20app)](https://github.com/zzgiabaozzbui/athena-starter/releases/latest)
+[![check](https://github.com/zzgiabaozzbui/athena-starter/actions/workflows/check.yml/badge.svg)](https://github.com/zzgiabaozzbui/athena-starter/actions/workflows/check.yml)
 
 ![Agent Observatory showing the full plan of a 14-task mission](docs/images/observatory-full-plan.png)
 
