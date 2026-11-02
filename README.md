@@ -1,6 +1,8 @@
 # Athena Starter
 
-**Guardrails and a workflow for Claude Code: route every request, plan before coding, red test before fixing, independent review for risky changes, and a desktop dashboard to watch it all happen.**
+**Your Claude Code agent always knows which workflow it is in, where it is in the plan, and what is still left to do.**
+
+Athena Starter is a Claude Code plugin that routes every request to the right workflow, keeps a live progress table for every multi-step job, and blocks the shortcuts that break real projects. A desktop dashboard shows all of it as a graph, a board and a timeline.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-d97757.svg)](#quick-start)
@@ -11,7 +13,56 @@
 
 *The plan above is the real 14-task plan that built this kit, shown in Agent Observatory: each card is a task with its status, agents and token use; edges are dependencies.*
 
-## Why
+## Features
+
+### 1. Automatic flow routing
+
+Every new request is matched to one of **30 workflows** before the agent reads or edits anything. The agent restates what you asked, recommends a flow and lists the runners-up, so a misread request is caught in one click instead of ten edited files.
+
+```
+You:    Users can see other departments' records on the report screen.
+Agent:  Flow: you want users to see only their own department's records. Which flow?
+          > Auth / permissions · #12 (Recommended): CRITICAL, you approve the proposal before any edit, live test with an ordinary account
+            Bug fix · #6: red test first
+            UI change · #15: frontend only
+```
+
+Each flow carries its own risk level, so a one-line change to permissions still gets the full process that a one-line typo fix does not.
+
+| Group | Flows |
+|---|---|
+| **Idea to delivery** | Vague request (clarify scope first) · Large one-sided feature · Feature across backend + frontend · Code review · Commit / push / release |
+| **High-risk work** | Production incident · Bug fix · New CRUD module · Schema / migrations · Writing database data · Auth / permissions · Public endpoint · Shared config |
+| **Small jobs, no plan** | Typo / format / rename · Routine backend code · Write tests · UI change |
+| **Standalone** | Q&A · Multi-file research · Mockup / prototype · Docs · Merge conflicts · Large migration · Plan progress · Glossary and ADRs · Architecture (C4) · Security testing · Project roadmap |
+
+Already know the flow? Say `Flow: #6` or name the skill and the agent skips the question.
+
+### 2. The agent knows where it is: project, plan and task
+
+Progress is written to plain Markdown and JSON in your repo, not kept in the chat. Ask in plain words and the agent answers from those files:
+
+| You ask | Level | Answered from |
+|---|---|---|
+| "How far is the project? What is still missing?" | **Project** | `docs/du-an/lo-trinh.json`: goals, then items per goal (module or phase), each with status, owner, deadline and acceptance criteria |
+| "Where are we in the plan?" | **Plan** | `docs/artifact/<date-name>/plan.md`: tasks and the dependencies between them |
+| "What is left? What is blocked? What needs me?" | **Task** | `progress.md`: one row per task with `TODO` · `DOING` · `CHỜ-USER` (waiting for you) · `BLOCKED` · `DONE` · `SKIP` |
+| "What should happen next?" | **Task** | ready tasks ranked by how many other tasks wait behind them |
+
+- **Survives context compaction and new sessions.** After a compaction the agent resumes the running plan from `intent.md` and `progress.md` instead of starting over; a new session can pick up from the same files.
+- **Multi-step work never starts without a plan.** `plan.md` and `progress.md` are written and approved before task 1, then updated after every task.
+- **Scope is written down.** `intent.md` lists the files the agent may touch; anything outside needs your OK by name.
+
+### 3. Watch it live: Agent Observatory
+
+The same files feed a local dashboard: overview, Kanban board, mission list, full plan graph, timeline, roadmap, and agent and skill usage.
+
+- **"Needs you" counter** in the tab title for tasks waiting on you or blocked, with optional browser notifications.
+- **Token and cost per task**, with alerts for token spikes, budget overruns and stalled agents.
+- **Process alerts**: a task marked done with no check after the last edit, one file edited over and over, a failed command retried without changes.
+- **Export Summary** writes a report of the mission into its folder.
+
+### 4. Guardrails that hold
 
 | Without it | With Athena Starter |
 |---|---|
@@ -59,8 +110,6 @@ The hooks run with `node`: Node 18 or later must be on your PATH. A native Claud
 6. **Commit.** Named files only, a sensitive-data scan before every commit, and no push without your OK.
 
 ## Agent Observatory desktop app
-
-A local dashboard for the plans and agents in your repos: overview, Kanban board, mission list, full plan graph, timeline, roadmap, agent and skill usage.
 
 **[Download the latest Windows installer](https://github.com/zzgiabaozzbui/athena-starter/releases/latest)** (`Agent-Observatory-Setup-*.exe`).
 
