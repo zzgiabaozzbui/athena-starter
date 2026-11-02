@@ -144,4 +144,4 @@ This repository also holds the official releases of Agent Observatory Desktop.
 
 ## License
 
-MIT; see `LICENSE` for third-party sources.
+MIT; third-party sources are credited in [`NOTICE`](NOTICE).

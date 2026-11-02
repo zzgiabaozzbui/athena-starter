@@ -19,30 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-Third-party notices
-
-Parts of this work are adapted from the projects below, each released under
-the MIT License (same permission and warranty text as above). The copyright
-notice of each project applies to the material adapted from it.
-
-- github.com/obra/superpowers - Copyright (c) 2025 Jesse Vincent
-- github.com/affaan-m/ecc - Copyright (c) 2026 Affaan Mustafa
-- github.com/mattpocock/skills - Copyright (c) 2026 Matt Pocock
-- github.com/github/spec-kit - Copyright (c) GitHub, Inc.
-- github.com/cloudflare/security-audit-skill - Copyright (c) 2025-2026 Cloudflare, Inc.
-- github.com/addyosmani/agent-skills - Copyright (c) Addy Osmani
-- github.com/currents-dev/playwright-best-practices-skill - Copyright (c) 2026 Currents Software Inc.
-
-Apache License 2.0
-
-The following sources are licensed under the Apache License, Version 2.0
-(https://www.apache.org/licenses/LICENSE-2.0). Material adapted from them
-remains under that license.
-
-- github.com/tester-army/e2e - Copyright (c) 2026 TesterArmy, Inc.
-- playwright.dev/docs/test-agents (github.com/microsoft/playwright) - Copyright (c) Microsoft
-
-Creative Commons BY-SA 4.0
-
-Parts of skills/security-testing/ are adapted from github.com/trailofbits/skills under CC BY-SA 4.0; see skills/security-testing/LICENSE.
