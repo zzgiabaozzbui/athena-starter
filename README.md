@@ -1,8 +1,8 @@
 # Athena Starter
 
-**Your Claude Code agent always knows which workflow it is in, where it is in the plan, and what is still left to do.**
+### Give Claude Code a memory that outlives the chat, and a process it can't skip.
 
-Athena Starter is a Claude Code plugin that routes every request to the right workflow, keeps a live progress table for every multi-step job, and blocks the shortcuts that break real projects. A desktop dashboard shows all of it as a graph, a board and a timeline.
+Close the session, hit a context compaction, come back next week: the agent still knows **which project goal it is on, which plan it is running, and which task is next**. And every request it works on goes through the same disciplined path: route → scope → plan → red test → independent review → commit.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-d97757.svg)](#quick-start)
@@ -17,13 +17,39 @@ English · [Vietnamese](README.vi.md)
 
 ![Agent Observatory showing the full plan of a 14-task mission](docs/images/observatory-full-plan.png)
 
-*The plan above is the real 14-task plan that built this kit, shown in Agent Observatory: each card is a task with its status, agents and token use; edges are dependencies.*
+*Not a mockup: this is the real 14-task plan that built this kit, rendered by Agent Observatory. Each card is a task with its status, agents and token use; edges are dependencies.*
 
-## Features
+## Why
 
-### 1. Automatic flow routing
+Coding agents are brilliant for twenty minutes and then forget everything. The plan lived in the chat, the chat got compacted, and now the agent is "starting fresh" on a job that was 60% done. Meanwhile it edited twelve files before anyone agreed on scope, "fixed" a bug without proving it, and reviewed its own work.
 
-Every new request is matched to one of **30 workflows** before the agent reads or edits anything. The agent restates what you asked, recommends a flow and lists the runners-up, so a misread request is caught in one click instead of ten edited files.
+Athena Starter fixes both halves:
+
+| | **🧠 Long-term memory** | **⚙️ A process that holds** |
+|---|---|---|
+| **What** | Project, plan and task state written to plain Markdown and JSON in your repo | 30 workflows, 18 skills, 6 agents and safety hooks |
+| **Survives** | Context compaction, new sessions, a different machine, a teammate | Tired prompts, "just quickly fix this", the agent's own optimism |
+| **You get** | "Where are we? What's left? What needs me?" answered from files, not guesses | Scope before edits, red test before fixes, a fresh-eyed reviewer before "done" |
+| **You see it** | Agent Observatory: graph, Kanban board, timeline, roadmap | One flow question per request, recommended option first |
+
+## 🧠 Memory: the agent always knows where it is
+
+No database, no embeddings, no cloud. Memory is files you can read, diff and commit, organized in three levels:
+
+| Ask in plain words | Level | Remembered in |
+|---|---|---|
+| "How far is the project? What is still missing?" | **Project** | `docs/du-an/lo-trinh.json`: goals, then items per goal with status, owner, deadline and acceptance criteria |
+| "Where are we in the plan?" | **Plan** | `docs/artifact/<date-name>/plan.md`: tasks and the dependencies between them |
+| "What is left? What is blocked? What needs me?" | **Task** | `progress.md`: one row per task, `TODO` · `DOING` · `CHỜ-USER` (waiting for you) · `BLOCKED` · `DONE` · `SKIP` |
+| "What should happen next?" | **Task** | Ready tasks ranked by how many others wait behind them |
+
+- **Picks up where it left off.** After a compaction the session hook tells the agent to resume the running plan from `intent.md` and `progress.md` instead of starting over. A new session reads the same files.
+- **Written down before it starts.** Multi-step work gets `plan.md` and `progress.md`, approved by you, before task 1; the table is updated after every task.
+- **Scope is memory too.** `intent.md` lists the files the agent may touch. Anything outside needs your OK by name, even three sessions later.
+
+## ⚙️ Process: every request takes the right path
+
+Before the agent reads or edits anything, it restates what you asked and routes it to one of **30 workflows**. A misread request costs one click, not ten edited files.
 
 ```
 You:    Users can see other departments' records on the report screen.
@@ -33,7 +59,28 @@ Agent:  Flow: you want users to see only their own department's records. Which f
             UI change · #15: frontend only
 ```
 
-Each flow carries its own risk level, so a one-line change to permissions still gets the full process that a one-line typo fix does not.
+Each flow carries its own risk level: a one-line permissions change gets the full process; a one-line typo fix does not.
+
+```mermaid
+flowchart LR
+  R[Request] --> F{Flow question}
+  F -->|Q&A, research| A[Answer]
+  F -->|small job| S[intent.md]
+  F -->|multi-step or risky| P[intent.md + plan.md + progress.md]
+  P -->|you approve| B[Build task by task]
+  S --> B
+  B --> V[Independent review + re-run checks]
+  V -->|you approve| C[Commit]
+  B -. updates .-> T[(progress.md)]
+  T -. read by .-> O[Observatory]
+```
+
+1. **Route.** Restate the request, recommend a flow, list the runners-up.
+2. **Scope.** Write `intent.md` with the files it may touch.
+3. **Plan.** Multi-step or risky work gets `plan.md` + `progress.md` for your approval.
+4. **Build.** Tasks go to the right agent (`developer`, `quick-fix`...). Fixes start with a test that fails for the right reason.
+5. **Review and verify.** A reviewer with fresh context checks the diff; the main agent re-runs the checks itself instead of trusting the report.
+6. **Commit.** Named files only, a sensitive-data scan first, and no push without your OK.
 
 | Group | Flows |
 |---|---|
@@ -44,39 +91,32 @@ Each flow carries its own risk level, so a one-line change to permissions still 
 
 Already know the flow? Say `Flow: #6` or name the skill and the agent skips the question.
 
-### 2. The agent knows where it is: project, plan and task
-
-Progress is written to plain Markdown and JSON in your repo, not kept in the chat. Ask in plain words and the agent answers from those files:
-
-| You ask | Level | Answered from |
-|---|---|---|
-| "How far is the project? What is still missing?" | **Project** | `docs/du-an/lo-trinh.json`: goals, then items per goal (module or phase), each with status, owner, deadline and acceptance criteria |
-| "Where are we in the plan?" | **Plan** | `docs/artifact/<date-name>/plan.md`: tasks and the dependencies between them |
-| "What is left? What is blocked? What needs me?" | **Task** | `progress.md`: one row per task with `TODO` · `DOING` · `CHỜ-USER` (waiting for you) · `BLOCKED` · `DONE` · `SKIP` |
-| "What should happen next?" | **Task** | ready tasks ranked by how many other tasks wait behind them |
-
-- **Survives context compaction and new sessions.** After a compaction the agent resumes the running plan from `intent.md` and `progress.md` instead of starting over; a new session can pick up from the same files.
-- **Multi-step work never starts without a plan.** `plan.md` and `progress.md` are written and approved before task 1, then updated after every task.
-- **Scope is written down.** `intent.md` lists the files the agent may touch; anything outside needs your OK by name.
-
-### 3. Watch it live: Agent Observatory
-
-The same files feed a local dashboard: overview, Kanban board, mission list, full plan graph, timeline, roadmap, and agent and skill usage.
-
-- **"Needs you" counter** in the tab title for tasks waiting on you or blocked, with optional browser notifications.
-- **Token and cost per task**, with alerts for token spikes, budget overruns and stalled agents.
-- **Process alerts**: a task marked done with no check after the last edit, one file edited over and over, a failed command retried without changes.
-- **Export Summary** writes a report of the mission into its folder.
-
-### 4. Guardrails that hold
+### Guardrails that hold
 
 | Without it | With Athena Starter |
 |---|---|
-| The agent starts editing before anyone agreed on scope. | Every new request gets a flow question first; scope goes into `intent.md` before any file changes. |
-| Bugs get "fixed" without proof. | Bug fixes and behavior changes start with a test that fails for the right reason. |
-| The agent reviews its own work and calls it done. | Risky changes go to a separate reviewer with fresh context; "done" needs the check output from this turn. |
-| Plans and notes end up scattered across chats. | Each task has one folder, `docs/artifact/<date>-<name>/`, with intent, plan and a progress table a dashboard can read. |
-| `git commit --no-verify` quietly skips your hooks. | Safety hooks block hook bypasses and edits that loosen lint config. |
+| The agent starts editing before anyone agreed on scope. | Every new request gets a flow question; scope goes into `intent.md` before any file changes. |
+| Bugs get "fixed" without proof. | Bug fixes and behavior changes start with a red test. |
+| The agent reviews its own work and calls it done. | Risky changes go to a separate reviewer; "done" needs check output from this turn. |
+| Plans and notes scatter across chats. | One folder per task, `docs/artifact/<date>-<name>/`, that a dashboard can read. |
+| `git commit --no-verify` quietly skips your hooks. | Hooks block hook bypasses and edits that loosen lint config. |
+
+## 👀 Watch it live: Agent Observatory
+
+The memory files feed a local dashboard: overview, Kanban board, mission list, full plan graph, timeline, roadmap, and agent and skill usage.
+
+- **"Needs you" counter** in the tab title for tasks waiting on you or blocked, with optional browser notifications.
+- **Token and cost per task**, with alerts for token spikes, budget overruns and stalled agents.
+- **Process alerts**: a task marked done with no check after the last edit, one file edited over and over, a failed command retried unchanged.
+- **Export Summary** writes a mission report into its folder.
+
+**[Download the Windows installer](https://github.com/zzgiabaozzbui/athena-starter/releases/latest)** (`Agent-Observatory-Setup-*.exe`), or stay inside Claude Code:
+
+```
+/plugin install athena-observatory@athena
+```
+
+Read-only and local: it listens on 127.0.0.1 only and sends nothing out. Windows only for now; the interface is in Vietnamese. Besides Claude Code sessions it also reads transcripts of other coding agents and route logs when they exist.
 
 ## Quick start
 
@@ -105,45 +145,6 @@ apm install zzgiabaozzbui/athena-starter
 The hooks run with `node`: Node 18 or later must be on your PATH. A native Claude Code install may not include Node; without it the hooks stay silent and do nothing.
 
 </details>
-
-## What a session looks like
-
-```mermaid
-flowchart LR
-  R[Request] --> F{Flow question}
-  F -->|Q&A, research| A[Answer]
-  F -->|small job| S[intent.md]
-  F -->|multi-step or risky| P[intent.md + plan.md + progress.md]
-  P -->|you approve| B[Build task by task]
-  S --> B
-  B --> V[Independent review + re-run checks]
-  V -->|you approve| C[Commit]
-  B -. updates .-> T[(progress.md)]
-  T -. read by .-> O[Observatory]
-```
-
-1. **Route.** You ask for a change. The agent restates it and asks which flow fits (bug fix, feature, review, research...), recommended option first.
-2. **Scope.** It writes `intent.md` with the files it may touch. Anything outside needs your OK by name.
-3. **Plan.** Multi-step or risky work gets `plan.md` and `progress.md`, which you approve before any code changes.
-4. **Build.** Tasks go to the right agent (`developer`, `quick-fix`...). Fixes start with a red test.
-5. **Review and verify.** A reviewer with fresh context checks the diff; the main agent re-runs the checks itself instead of trusting the report.
-6. **Commit.** Named files only, a sensitive-data scan before every commit, and no push without your OK.
-
-## Agent Observatory desktop app
-
-**[Download the latest Windows installer](https://github.com/zzgiabaozzbui/athena-starter/releases/latest)** (`Agent-Observatory-Setup-*.exe`).
-
-- Reads the `docs/artifact/` folders and progress tables that Athena Starter writes.
-- Read-only and local: it listens on 127.0.0.1 only and sends nothing out.
-- Windows only for now; the interface is in Vietnamese.
-
-Prefer to stay inside Claude Code? The same app ships as an optional plugin:
-
-```
-/plugin install athena-observatory@athena
-```
-
-The plugin bundles the app as is. Besides Claude Code sessions it also reads transcripts of other coding agents and route logs when they exist; these are features of the app, not data shipped with it.
 
 ## What's inside
 
@@ -205,13 +206,11 @@ The plugin bundles the app as is. Besides Claude Code sessions it also reads tra
 ## Customize
 
 - Your project's `CLAUDE.md` and `.claude/rules/` win over these defaults. Declare your stack and verify commands there; the `developer` agent reads them.
-- Each task keeps its documents in `docs/artifact/<YYYY-MM-DD-HHMM-name>/`. The progress table uses the columns `ID | Task | Deps | Status` with the statuses `TODO`, `DOING`, `CHỜ-USER` (waiting for the user), `BLOCKED`, `DONE`, `SKIP`. Details are in the `docs-standards` skill.
+- Each task keeps its documents in `docs/artifact/<YYYY-MM-DD-HHMM-name>/`. The progress table uses the columns `ID | Task | Deps | Status` with the statuses above. Details are in the `docs-standards` skill.
 - To turn the hooks off, disable the plugin with `/plugin` (select `athena-starter`, then Disable).
 
-## Releases
+## Credits and license
+
+MIT. Several skills are adapted from [obra/superpowers](https://github.com/obra/superpowers), [mattpocock/skills](https://github.com/mattpocock/skills) and others; every source is credited in [`NOTICE`](NOTICE).
 
 This repository also holds the official releases of Agent Observatory Desktop.
-
-## License
-
-MIT; third-party sources are credited in [`NOTICE`](NOTICE).
